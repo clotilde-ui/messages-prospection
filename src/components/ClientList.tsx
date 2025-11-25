@@ -61,7 +61,7 @@ export default function ClientList({ onSelectClient, onNewClient }: ClientListPr
         <h2 className="text-3xl font-bold text-[#232323] uppercase tracking-tight">Mes Clients</h2>
         <button
           onClick={onNewClient}
-          className="flex items-center gap-2 px-6 py-3 bg-[#24B745] text-[#FAF5ED] hover:bg-[#1f9e3b] hover:shadow-[4px_4px_0px_0px_#232323] transition-all duration-200 font-bold uppercase text-xs tracking-wider border-2 border-transparent hover:border-[#232323]"
+          className="flex items-center gap-2 px-6 py-3 bg-studio-accent text-[#232323] hover:bg-studio-accentHover hover:shadow-[4px_4px_0px_0px_#232323] transition-all duration-200 font-bold uppercase text-xs tracking-wider border-2 border-transparent hover:border-[#232323]"
         >
           <Plus className="w-5 h-5" />
           Nouveau Client
@@ -71,7 +71,7 @@ export default function ClientList({ onSelectClient, onNewClient }: ClientListPr
       {clients.length === 0 ? (
         <div className="text-center py-16 bg-[#232323] border border-[#232323]">
           <p className="text-[#FAF5ED]/60 mb-6 text-lg">Aucun client pour le moment</p>
-          <button onClick={onNewClient} className="text-[#24B745] hover:text-[#FAF5ED] font-bold uppercase tracking-wide underline decoration-2 underline-offset-4 transition-colors">
+          <button onClick={onNewClient} className="text-studio-accent hover:text-[#FAF5ED] font-bold uppercase tracking-wide underline decoration-2 underline-offset-4 transition-colors">
             Créer votre premier client
           </button>
         </div>
@@ -82,16 +82,16 @@ export default function ClientList({ onSelectClient, onNewClient }: ClientListPr
               key={client.id}
               onClick={() => onSelectClient(client)}
               // STYLE BRUTALISTE : Fond Anthracite, Texte Beige, Angles Droits (gérés par index.css)
-              className="flex items-center justify-between p-6 bg-[#232323] text-[#FAF5ED] hover:shadow-[8px_8px_0px_0px_#24B745] hover:-translate-y-1 hover:-translate-x-1 transition-all duration-200 cursor-pointer group border-2 border-[#232323]"
+              className="flex items-center justify-between p-6 bg-[#232323] text-[#FAF5ED] hover:shadow-[8px_8px_0px_0px_#FFBEFA] hover:-translate-y-1 hover:-translate-x-1 transition-all duration-200 cursor-pointer group border-2 border-[#232323]"
             >
               <div className="flex-1">
-                <h3 className="font-bold text-xl group-hover:text-[#24B745] transition-colors uppercase tracking-wide">{client.name}</h3>
+                <h3 className="font-bold text-xl group-hover:text-studio-accent transition-colors uppercase tracking-wide">{client.name}</h3>
                 <div className="flex items-center gap-4 mt-2">
                   <p className="text-xs text-[#FAF5ED]/50 font-mono">
                     {new Date(client.created_at).toLocaleDateString('fr-FR')}
                   </p>
                   {clientAnalyses[client.id] > 0 && (
-                    <span className="flex items-center gap-2 text-xs text-[#232323] font-bold bg-[#24B745] px-3 py-1">
+                    <span className="flex items-center gap-2 text-xs text-[#232323] font-bold bg-studio-accent px-3 py-1">
                       <Lightbulb className="w-3 h-3" />
                       {clientAnalyses[client.id]} PROJET{clientAnalyses[client.id] > 1 ? 'S' : ''}
                     </span>
@@ -106,7 +106,7 @@ export default function ClientList({ onSelectClient, onNewClient }: ClientListPr
                 >
                   <Trash2 className="w-5 h-5" />
                 </button>
-                <ChevronRight className="w-6 h-6 text-[#FAF5ED]/30 group-hover:text-[#24B745] transition-colors" />
+                <ChevronRight className="w-6 h-6 text-[#FAF5ED]/30 group-hover:text-studio-accent transition-colors" />
               </div>
             </div>
           ))}

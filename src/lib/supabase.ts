@@ -54,11 +54,8 @@ export interface Concept {
   cta: string;
   suggested_visual: string;
   script_outline: string;
-  media_type: 'video' | 'static' | 'email'; // <-- AJOUT DE 'email'
-  image_url?: string;
-  image_generated_at?: string;
-  generated_prompt?: string;
-  prompt_generated_at?: string;
+  media_type: 'email'; // CONSTRAINT À 'email'
+  // image_url, image_generated_at, generated_prompt, prompt_generated_at supprimés
   created_at: string;
 }
 
@@ -66,10 +63,8 @@ export interface Settings {
   id: string;
   user_id: string;
   openai_api_key: string;
-  ideogram_api_key?: string;
-  google_api_key?: string;
-  higgsfield_api_key?: string;
-  higgsfield_secret?: string;
+  // ideogram_api_key, google_api_key, higgsfield_api_key, higgsfield_secret supprimés
+  is_admin?: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -92,54 +87,10 @@ export interface FeatureRequestVote {
   created_at: string;
 }
 
-// --- FONCTION D'UPLOAD (INCHANGÉE) ---
+// --- Suppression de la fonction uploadImageToStorage car elle n'est plus nécessaire ---
 
-export async function uploadImageToStorage(urlOrBase64: string, conceptId: string): Promise<string | null> {
-  try {
-    let blob: Blob;
-
-    // 1. Convertir l'entrée en Blob (Fichier)
-    if (urlOrBase64.startsWith('data:image')) {
-      // Cas Base64 (Google / Nano Banana parfois)
-      const base64Data = urlOrBase64.split(',')[1];
-      const byteCharacters = atob(base64Data);
-      const byteNumbers = new Array(byteCharacters.length);
-      for (let i = 0; i < byteCharacters.length; i++) {
-        byteNumbers[i] = byteCharacters.charCodeAt(i);
-      }
-      const byteArray = new Uint8Array(byteNumbers);
-      blob = new Blob([byteArray], { type: 'image/png' });
-    } else {
-      // Cas URL (OpenAI / Ideogram)
-      // On doit passer par un fetch pour récupérer le binaire
-      const response = await fetch(urlOrBase64);
-      blob = await response.blob();
-    }
-
-    // 2. Générer un nom de fichier unique
-    const fileName = `${conceptId}_${Date.now()}.png`;
-
-    // 3. Upload vers Supabase Storage
-    // Le bucket 'generated-images' doit être créé dans Supabase au préalable
-    const { error: uploadError } = await supabase.storage
-      .from('GENERATED-IMAGES')
-      .upload(fileName, blob, {
-        contentType: 'image/png',
-        upsert: true
-      });
-
-    if (uploadError) throw uploadError;
-
-    // 4. Récupérer l'URL publique
-    const { data } = supabase.storage
-      .from('GENERATED-IMAGES')
-      .getPublicUrl(fileName);
-
-    return data.publicUrl;
-
-  } catch (error) {
-    console.error('Erreur upload storage:', error);
-    // Si l'upload échoue, on renvoie null (ou l'on pourrait renvoyer l'url temporaire en fallback)
-    return null;
-  }
+export async function checkStorageConnection(): Promise<void> {
+  // Fonction de remplacement minimaliste pour éviter les erreurs d'import/export
+  // Cette fonction ne sera jamais appelée mais est laissée en cas de dépendance
+  console.log("Storage check is no longer relevant for this email-only application.");
 }

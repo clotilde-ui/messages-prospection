@@ -26,13 +26,13 @@ CREATE TABLE IF NOT EXISTS analyses (
   offer_details TEXT NOT NULL,
   target_audience TEXT NOT NULL,
   brand_positioning TEXT NOT NULL,
-  ad_platform TEXT NOT NULL DEFAULT 'Meta',
+  ad_platform TEXT NOT NULL DEFAULT 'Cold Email', -- CHANGÉ: 'Meta' -> 'Cold Email'
   raw_content TEXT NOT NULL DEFAULT '',
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- Table concepts
+-- Table concepts (Simplifiée pour les Emails uniquement)
 CREATE TABLE IF NOT EXISTS concepts (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   analysis_id UUID NOT NULL REFERENCES analyses(id) ON DELETE CASCADE,
@@ -47,38 +47,25 @@ CREATE TABLE IF NOT EXISTS concepts (
   benefits TEXT NOT NULL,
   proof TEXT NOT NULL,
   cta TEXT NOT NULL,
-  suggested_visual TEXT NOT NULL,
-  script_outline TEXT NOT NULL,
-  media_type TEXT NOT NULL CHECK (media_type IN ('video', 'static')),
-  image_url TEXT,
-  image_generated_at TIMESTAMP WITH TIME ZONE,
-  generated_prompt TEXT,
-  prompt_generated_at TIMESTAMP WITH TIME ZONE,
+  suggested_visual TEXT NOT NULL, -- Utilisé pour le corps de l'email
+  script_outline TEXT NOT NULL, -- Utilisé pour la stratégie de séquence
+  media_type TEXT NOT NULL DEFAULT 'email' CHECK (media_type IN ('email')), -- CHANGÉ: 'video' | 'static' -> 'email'
+  -- Colonnes relatives aux images supprimées
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- Table settings
+-- Table settings (Clés API d'imagerie retirées du besoin, on garde OpenAI pour le texte)
 CREATE TABLE IF NOT EXISTS settings (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE UNIQUE,
   openai_api_key TEXT NOT NULL DEFAULT '',
-  ideogram_api_key TEXT,
-  google_api_key TEXT,
+  -- ideogram_api_key, google_api_key, higgsfield_api_key, higgsfield_secret retirés
   is_admin BOOLEAN DEFAULT FALSE,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- Index pour améliorer les performances
-CREATE INDEX IF NOT EXISTS idx_clients_created_at ON clients(created_at DESC);
-CREATE INDEX IF NOT EXISTS idx_analyses_client_id ON analyses(client_id);
-CREATE INDEX IF NOT EXISTS idx_analyses_user_id ON analyses(user_id);
-CREATE INDEX IF NOT EXISTS idx_analyses_created_at ON analyses(created_at DESC);
-CREATE INDEX IF NOT EXISTS idx_concepts_analysis_id ON concepts(analysis_id);
-CREATE INDEX IF NOT EXISTS idx_concepts_media_type ON concepts(media_type);
-CREATE INDEX IF NOT EXISTS idx_settings_user_id ON settings(user_id);
-
--- Fonction pour mettre à jour updated_at automatiquement
+-- Fonction pour mettre à jour updated_at automatiquement (inchangée)
 CREATE OR REPLACE FUNCTION update_updated_at_column()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -87,7 +74,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- Triggers pour mettre à jour updated_at
+-- Triggers (mis à jour pour les tables restantes)
 CREATE TRIGGER update_clients_updated_at
   BEFORE UPDATE ON clients
   FOR EACH ROW
@@ -103,13 +90,23 @@ CREATE TRIGGER update_settings_updated_at
   FOR EACH ROW
   EXECUTE FUNCTION update_updated_at_column();
 
--- Politiques RLS (Row Level Security)
+-- Index pour améliorer les performances (mis à jour)
+CREATE INDEX IF NOT EXISTS idx_clients_created_at ON clients(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_analyses_client_id ON analyses(client_id);
+CREATE INDEX IF NOT EXISTS idx_analyses_user_id ON analyses(user_id);
+CREATE INDEX IF NOT EXISTS idx_analyses_created_at ON analyses(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_concepts_analysis_id ON concepts(analysis_id);
+-- idx_concepts_media_type retiré car il n'y a plus qu'un seul type
+CREATE INDEX IF NOT EXISTS idx_settings_user_id ON settings(user_id);
+
+
+-- Politiques RLS (Row Level Security - inchangées)
 ALTER TABLE clients ENABLE ROW LEVEL SECURITY;
 ALTER TABLE analyses ENABLE ROW LEVEL SECURITY;
 ALTER TABLE concepts ENABLE ROW LEVEL SECURITY;
 ALTER TABLE settings ENABLE ROW LEVEL SECURITY;
 
--- Politiques pour clients
+-- Politiques pour clients (inchangées)
 CREATE POLICY "Les utilisateurs authentifiés peuvent lire tous les clients"
   ON clients FOR SELECT
   TO authenticated
@@ -130,7 +127,7 @@ CREATE POLICY "Les utilisateurs authentifiés peuvent supprimer les clients"
   TO authenticated
   USING (true);
 
--- Politiques pour analyses
+-- Politiques pour analyses (inchangées)
 CREATE POLICY "Les utilisateurs authentifiés peuvent lire toutes les analyses"
   ON analyses FOR SELECT
   TO authenticated
@@ -151,7 +148,7 @@ CREATE POLICY "Les utilisateurs peuvent supprimer leurs propres analyses"
   TO authenticated
   USING (auth.uid() = user_id);
 
--- Politiques pour concepts
+-- Politiques pour concepts (inchangées)
 CREATE POLICY "Les utilisateurs authentifiés peuvent lire tous les concepts"
   ON concepts FOR SELECT
   TO authenticated
@@ -172,7 +169,7 @@ CREATE POLICY "Les utilisateurs authentifiés peuvent supprimer les concepts"
   TO authenticated
   USING (true);
 
--- Politiques pour settings
+-- Politiques pour settings (inchangées)
 CREATE POLICY "Les utilisateurs peuvent lire leurs propres paramètres"
   ON settings FOR SELECT
   TO authenticated
@@ -187,7 +184,3 @@ CREATE POLICY "Les utilisateurs peuvent modifier leurs propres paramètres"
   ON settings FOR UPDATE
   TO authenticated
   USING (auth.uid() = user_id);
-
-
-
-

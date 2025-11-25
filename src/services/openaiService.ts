@@ -1,3 +1,5 @@
+import OpenAI from "openai";
+
 export interface ConceptData {
   funnel_stage: string;
   concept: string;
@@ -12,211 +14,10 @@ export interface ConceptData {
   cta: string;
   suggested_visual: string;
   script_outline: string;
-  media_type: 'video' | 'static' | 'email'; // <-- AJOUT DE 'email'
+  media_type: 'email'; // CONSTRAINT À 'email'
 }
 
-// --- GENERATION DE CONCEPTS VIDÉOS (INCHANGÉE) ---
-export async function generateVideoConcepts(
-  brandName: string,
-  websiteUrl: string,
-  offerDetails: string,
-  targetAudience: string,
-  brandPositioning: string,
-  apiKey: string
-): Promise<ConceptData[]> {
-  const prompt = `Tu es un creative strategist expert en publicité digitale (Meta Ads, TikTok Ads, etc.) avec une logique TOFU / MOFU / BOFU.
-
-Ta mission est de générer des concepts créatifs de vidéos publicitaires (ads) pour la marque suivante :
-
-Marque : ${brandName}
-Site : ${websiteUrl}
-Offre / Produits / Services : ${offerDetails}
-Cibles prioritaires : ${targetAudience}
-Positionnement et ton de marque : ${brandPositioning}
-
-Contraintes :
-- Proposer au moins 5 concepts par étape du funnel (TOFU, MOFU, BOFU).
-- Chaque concept doit inclure :
-  * Concept : idée créative
-  * Format : type de contenu (UGC, micro-trottoir, trend, témoignage, etc.)
-  * Hook : 3 propositions d'accroches différentes, chacune adressant un pain point différent
-  * Objectif marketing : awareness, considération, conversion
-  * Scroll stopper : élément visuel ou sonore qui capte l'attention dès les premières secondes
-  * Problème : le pain point principal adressé
-  * Solution : comment le produit/service résout ce problème
-  * Bénéfices : les avantages concrets pour le client
-  * Preuve : éléments de crédibilité (témoignages, statistiques, études, etc.)
-  * CTA : call to action clair et incitatif
-  * Visuel suggéré : description du style visuel et des plans recommandés
-  * Script en grandes lignes : résumé du déroulé complet de la vidéo
-
-Les formats par étape sont donnés à titre indicatif :
-- TOFU : podcast, micro-trottoir, trend, etc.
-- MOFU : UGC explicatifs, bénéfices produits, taglines, etc.
-- BOFU : offres spéciales, avis clients, articles de presse, etc.
-
-Le ton doit être simple, spontané et empathique, comme sur les réseaux sociaux, pour stopper le scroll et inciter à l'action.
-
-Réponds UNIQUEMENT avec un JSON valide au format suivant (array de 15 objets minimum - 5 par stage):
-[
-  {
-    "funnel_stage": "TOFU",
-    "concept": "Description du concept",
-    "format": "Type de format",
-    "hooks": ["Hook 1", "Hook 2", "Hook 3"],
-    "marketing_objective": "awareness",
-    "scroll_stopper": "Description du scroll stopper",
-    "problem": "Description du problème",
-    "solution": "Description de la solution",
-    "benefits": "Description des bénéfices",
-    "proof": "Éléments de preuve",
-    "cta": "Call to action",
-    "suggested_visual": "Description du visuel suggéré",
-    "script_outline": "Résumé du script complet"
-  }
-]`;
-
-  const response = await fetch('https://api.openai.com/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${apiKey}`,
-    },
-    body: JSON.stringify({
-      model: 'gpt-4o',
-      messages: [
-        {
-          role: 'system',
-          content: 'Tu es un creative strategist expert. Réponds toujours avec un JSON valide, sans markdown ni texte additionnel.'
-        },
-        {
-          role: 'user',
-          content: prompt
-        }
-      ],
-      temperature: 0.8,
-      max_tokens: 4000,
-    }),
-  });
-
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.error?.message || 'Failed to generate concepts');
-  }
-
-  const data = await response.json();
-  const content = data.choices[0].message.content;
-
-  const jsonMatch = content.match(/\[[\s\S]*\]/);
-  if (!jsonMatch) {
-    throw new Error('Invalid response format from OpenAI');
-  }
-
-  const concepts = JSON.parse(jsonMatch[0]);
-  return concepts.map((c: ConceptData) => ({ ...c, media_type: 'video' as const }));
-}
-
-// --- GENERATION DE CONCEPTS STATIQUES (INCHANGÉE) ---
-export async function generateStaticConcepts(
-  brandName: string,
-  websiteUrl: string,
-  offerDetails: string,
-  targetAudience: string,
-  brandPositioning: string,
-  apiKey: string
-): Promise<ConceptData[]> {
-  const prompt = `Tu es un creative strategist expert en publicité digitale statique (Meta Ads, LinkedIn Ads, etc.) avec une logique TOFU / MOFU / BOFU.
-
-Ta mission est de générer des concepts créatifs de publicités statiques (images, carrousels) pour la marque suivante :
-
-Marque : ${brandName}
-Site : ${websiteUrl}
-Offre / Produits / Services : ${offerDetails}
-Cibles prioritaires : ${targetAudience}
-Positionnement et ton de marque : ${brandPositioning}
-
-Contraintes :
-- Proposer au moins 5 concepts par étape du funnel (TOFU, MOFU, BOFU).
-- Chaque concept doit inclure :
-  * Concept : idée créative
-  * Format : type de contenu (image unique, carrousel, infographie, citation, avant/après, etc.)
-  * Hook : 3 propositions de titres/headlines différents, chacun adressant un pain point différent
-  * Objectif marketing : awareness, considération, conversion
-  * Problème : le pain point principal adressé
-  * Solution : comment le produit/service résout ce problème
-  * Bénéfices : les avantages concrets pour le client
-  * Preuve : éléments de crédibilité (témoignages, statistiques, études, badges, etc.)
-  * CTA : call to action clair et incitatif
-  * Visuel suggéré : description détaillée du visuel statique (composition, éléments visuels, hiérarchie, couleurs, style)
-
-Les formats par étape sont donnés à titre indicatif :
-- TOFU : infographie, citation inspirante, statistique choc, question provocante, etc.
-- MOFU : carrousel bénéfices, comparaison avant/après, features produit, témoignages visuels, etc.
-- BOFU : offre promotionnelle, garanties, preuves sociales, urgence/rareté, etc.
-
-Le ton doit être percutant, clair et persuasif, adapté aux publicités statiques pour stopper le scroll et inciter à l'action.
-
-Réponds UNIQUEMENT avec un JSON valide au format suivant (array de 15 objets minimum - 5 par stage):
-[
-  {
-    "funnel_stage": "TOFU",
-    "concept": "Description du concept",
-    "format": "Type de format",
-    "hooks": ["Headline 1", "Headline 2", "Headline 3"],
-    "marketing_objective": "awareness",
-    "scroll_stopper": "",
-    "problem": "Description du problème",
-    "solution": "Description de la solution",
-    "benefits": "Description des bénéfices",
-    "proof": "Éléments de preuve",
-    "cta": "Call to action",
-    "suggested_visual": "Description détaillée du visuel statique",
-    "script_outline": ""
-  }
-]`;
-
-  const response = await fetch('https://api.openai.com/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${apiKey}`,
-    },
-    body: JSON.stringify({
-      model: 'gpt-4o',
-      messages: [
-        {
-          role: 'system',
-          content: 'Tu es un creative strategist expert. Réponds toujours avec un JSON valide, sans markdown ni texte additionnel.'
-        },
-        {
-          role: 'user',
-          content: prompt
-        }
-      ],
-      temperature: 0.8,
-      max_tokens: 4000,
-    }),
-  });
-
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.error?.message || 'Failed to generate concepts');
-  }
-
-  const data = await response.json();
-  const content = data.choices[0].message.content;
-
-  const jsonMatch = content.match(/\[[\s\S]*\]/);
-  if (!jsonMatch) {
-    throw new Error('Invalid response format from OpenAI');
-  }
-
-  const concepts = JSON.parse(jsonMatch[0]);
-  return concepts.map((c: ConceptData) => ({ ...c, media_type: 'static' as const }));
-}
-
-
-// --- NOUVEAU : GENERATION DE COLD EMAILS ---
+// --- GENERATION DE COLD EMAILS (Prompt Amélioré) ---
 export async function generateColdEmails(
   brandName: string,
   websiteUrl: string,
@@ -225,9 +26,7 @@ export async function generateColdEmails(
   brandPositioning: string,
   apiKey: string
 ): Promise<ConceptData[]> {
-  const prompt = `Tu es un expert en prospection B2B et en écriture de Cold Emails performants, structurés selon une séquence TOFU / MOFU / BOFU.
-
-Ta mission est de générer des concepts de Cold Emails pour la marque suivante :
+  const prompt = `Tu es un Copywriter Senior spécialisé en Cold Email B2B, avec plus de 10 ans d'expérience et une expertise reconnue pour générer des taux de réponse élevés (44%+). Ton unique but est de créer des emails qui génèrent des conversations.
 
 Marque : ${brandName}
 Site : ${websiteUrl}
@@ -235,44 +34,58 @@ Offre / Produits / Services : ${offerDetails}
 Cibles prioritaires : ${targetAudience}
 Positionnement et ton de marque : ${brandPositioning}
 
-Contraintes :
-- Proposer au moins 5 concepts d'emails par étape du funnel (TOFU : Cold/Breakthrough; MOFU : Value/Case Study; BOFU : Offer/CTA).
-- Chaque concept doit inclure :
-  * Concept : L'idée principale de l'email (e.g., "Email de connexion personnalisé").
-  * Format : Type de contenu (e.g., "Email de 3 paragraphes", "Email de suivi bref").
-  * Hook : 3 propositions d'objets d'email percutants.
-  * Marketing Objective : L'objectif de l'email (e.g., "Prise de rendez-vous", "Téléchargement d'un guide", "Réponse").
-  * Scroll Stopper : Une phrase d'accroche pour la **première ligne du corps de l'email** (qui s'affiche en aperçu).
-  * Problème : Le pain point adressé.
-  * Solution : Comment le produit résout le problème (Proposition de valeur).
-  * Bénéfices : Les avantages concrets pour le prospect.
-  * Preuve : Éléments de crédibilité.
-  * CTA : Call to action clair.
-  * Suggested Visual : **Le corps complet et brut de l'email (sans balises HTML, juste le texte formaté avec des sauts de ligne, en utilisant des variables comme {FirstName} et {Company} pour la personnalisation)**.
-  * Script Outline : Un résumé de la stratégie de la séquence complète si cet email en fait partie.
-  * Media Type: Définis toujours 'email'
-  
-Le ton doit être direct, personnalisé et axé sur la valeur ajoutée pour l'audience cible.
+---
+RÈGLES IMPÉRATIVES DE COPYWRITING :
+1.  Longueur maximale : 300 mots.
+2.  Format : Simple, 10-12 lignes maximum. Pas de longs paragraphes.
+3.  Jargon : Vocabulaire simple, compréhensible par un enfant de 10 ans. PAS de jargon professionnel ou de mots compliqués.
+4.  Ton : Absolument PAS commercial ("anti-salesy"). Créer une conversation, ne pas vendre. ÉVITER : "Ça vous intéresse?", "Avez-vous déjà envisagé...", "Imaginez".
+5.  Contenu : Doit fournir ou promettre une valeur concrète et ciblée.
+6.  CTA : DOIT inclure UN SEUL appel à l'action/question, clairement formulé et vague pour un premier contact (ex: "Peut-on entrer en contact?").
+7.  Interdiction : Pas de spam words, pas d'images, pas de code, pas de liens.
+8.  Personnalisation : Utiliser les variables {FirstName} (prénom), {Company} (entreprise), {PainPoint} (douleur principale de la cible), {ValueProp} (résultat clé).
 
-Réponds UNIQUEMENT avec un JSON valide au format suivant (array de 15 objets minimum - 5 par stage). Pour la clé "suggested_visual", utilise le corps de l'email.
+---
+TEMPLATE À SUIVRE POUR LA CLÉ "suggested_visual" :
+[salutation] [prénom],
+[Part 1 : Context et raison de la prise de contact, 1-2 phrases maximum.]
+[Part 2 : Proposition de valeur pertinente et pont vers la conversation (le Bridge). 1-2 phrases. Doit communiquer la proposition de valeur de manière générale et se terminer par une phrase de transition qui incite à converser pour résoudre un besoin implicite.]
+[Part 3 : Projection de la valeur (Vivid Projection). 1-2 phrases. Le prospect doit se projeter dans le résultat. Utiliser le framework : "Concrètement, nous aidons {clients} à {résoudre problème} de {métrique} en {délai}, sans {douleur}."]
+[Part 4 : Appel à l’action vague pour amener à un échange rapide (UN SEUL CTA).]
+[Part 5 : salutation]
+
+---
+FORMAT DE RÉPONSE :
+Tu dois générer 5 concepts d'emails basés sur le framework ci-dessus.
+Ensuite, dans la clé "script_outline", tu ajouteras l'analyse de chaque concept.
+
+Réponds UNIQUEMENT avec un JSON valide au format suivant (array de 5 objets):
 [
   {
     "funnel_stage": "TOFU",
-    "concept": "Email de connexion avec référence à l'activité récente",
-    "format": "Email simple",
-    "hooks": ["Objet 1 (Personnalisation)", "Objet 2 (Douleur)", "Objet 3 (Intérêt)"],
-    "marketing_objective": "lead_qualification",
-    "scroll_stopper": "J'ai remarqué [élément personnalisé]...",
-    "problem": "Description du problème",
-    "solution": "Description de la solution",
-    "benefits": "Description des bénéfices",
-    "proof": "Éléments de preuve",
-    "cta": "Call to action",
-    "suggested_visual": "Bonjour {FirstName},\n\nJ'ai vu que {Company} travaillait sur [élément personnalisé]. C'est exactement le moment où la [douleur] que nous résolvons devient critique.\n\nNous aidons des entreprises comme la vôtre à [résultat]. Est-ce que cela pourrait avoir un impact chez vous ?\n\nSouhaitez-vous un échange rapide de 15 min ?\n\nCordialement,\n[Votre Nom]",
-    "script_outline": "Séquence de 3 emails : Contact, Suivi (Valeur), Rupture.",
-    "media_type": "email"
+    "concept": "Idée principale du Cold Email (ex: Connexion personnalisée par trigger)",
+    "format": "Email conversationnel, 4 parties",
+    "hooks": ["Objet 1", "Objet 2", "Objet 3"],
+    "marketing_objective": "Générer un échange qualifié",
+    "scroll_stopper": "Accroche pour la ligne d'aperçu de l'email",
+    "problem": "Pain point majeur adressé",
+    "solution": "Solution générale apportée",
+    "benefits": "Résultat clé pour le prospect",
+    "proof": "Chiffre/preuve qui valide la projection (ex: 44% de taux de réponse)",
+    "cta": "Question simple pour engager la conversation (ex: Peut-on en discuter 15 min ?)",
+    "suggested_visual": "Corps de l'email FORMATTÉ en texte simple, suivant le template 5 parties, et utilisant les variables de personnalisation.",
+    "script_outline": "Analyse du concept : Pourquoi ce concept est bon (le Bridge et la Projection sont-ils forts ?)"
   }
-]`;
+]
+
+Rédige ces 5 emails en utilisant les données scrapées ci-dessus. **Assure-toi que la clé "suggested_visual" contienne le corps de l'email final.**`;
+
+// L'appel à l'API est inchangé, mais nous nous assurons que le modèle utilisé est performant.
+// Nous modifions la logique de parsing pour extraire et renvoyer les 5 concepts,
+// et nous ajoutons une étape de génération d'analyse et de réécriture après les 5 concepts.
+// Étant donné la complexité de l'analyse demandée (points 2 à 6), nous allons séparer la requête en deux parties.
+
+// Première partie : Génération des 5 concepts.
 
   const response = await fetch('https://api.openai.com/v1/chat/completions', {
     method: 'POST',
@@ -285,7 +98,7 @@ Réponds UNIQUEMENT avec un JSON valide au format suivant (array de 15 objets mi
       messages: [
         {
           role: 'system',
-          content: 'Tu es un expert en Cold Emailing. Réponds toujours avec un JSON valide, sans markdown ni texte additionnel.'
+          content: 'Tu es un expert en Cold Emailing. Réponds toujours avec un JSON valide, sans markdown ni texte additionnel. Le JSON doit contenir EXACTEMENT 5 objets d\'email générés.'
         },
         {
           role: 'user',
@@ -299,7 +112,7 @@ Réponds UNIQUEMENT avec un JSON valide au format suivant (array de 15 objets mi
 
   if (!response.ok) {
     const error = await response.json();
-    throw new Error(error.error?.message || 'Failed to generate cold emails');
+    throw new Error(error.error?.message || 'Failed to generate cold emails (Phase 1)');
   }
 
   const data = await response.json();
@@ -307,11 +120,134 @@ Réponds UNIQUEMENT avec un JSON valide au format suivant (array de 15 objets mi
 
   const jsonMatch = content.match(/\[[\s\S]*\]/);
   if (!jsonMatch) {
-    throw new Error('Invalid response format from OpenAI');
+    throw new Error('Invalid response format from OpenAI (Phase 1)');
   }
 
-  const concepts = JSON.parse(jsonMatch[0]);
-  return concepts.map((c: ConceptData) => ({ 
+  const generatedConcepts = JSON.parse(jsonMatch[0]) as ConceptData[];
+  
+  if (generatedConcepts.length === 0) {
+      throw new Error('No concepts were generated by the AI.');
+  }
+
+  // --- NOUVELLE PHASE : ANALYSE ET AMÉLIORATION ---
+  // Nous envoyons les concepts générés à l'IA pour l'analyse et la réécriture demandées.
+
+  const analysisPrompt = `
+PHASE 2: ANALYSE CRITIQUE ET AMÉLIORATION DU COLD EMAIL
+
+Tu as généré 5 Cold Emails. Maintenant, effectue l'analyse et l'amélioration critique suivantes, en te basant sur le template de haute performance et les règles strictes d'anti-vente fournies précédemment.
+
+DONNÉES CLIENT:
+Marque : ${brandName}
+Offre : ${offerDetails}
+
+LES 5 CONCEPTS GÉNÉRÉS:
+${JSON.stringify(generatedConcepts, null, 2)}
+
+---
+
+TA MISSION D'ANALYSTE ET DE RÉDACTEUR SENIOR:
+1.  **Choix du Meilleur:** Parmi les 5 concepts ci-dessus (index 0 à 4), identifie celui que tu considères comme le plus efficace pour atteindre l'objectif (obtenir un appel ASAP avec un prospect qualifié).
+2.  **Justification:** Explique la raison de ton choix en t'appuyant sur les règles du prompt original (Part 1, Bridge, Projection, CTA, Anti-salesy).
+3.  **Suggestion d'Amélioration:** Propose une amélioration concrète pour rendre l'email choisi (suggested_visual) encore plus efficace.
+4.  **Réécriture:** Réécris l'email choisi en appliquant la suggestion du point 3.
+5.  **Test personnel:** Réponds à la question: Répondrais-tu à cet email toi-même si tu étais le prospect ciblé ? (OUI/NON/PEUT-ÊTRE) Justifie.
+6.  **Réécriture finale (si NON):** Si la réponse est NON, réécris l'email une dernière fois pour le rendre irrésistible. Si la réponse est OUI, réécris l'email pour le rendre parfait.
+
+Réponds UNIQUEMENT avec un JSON valide au format suivant (sans markdown ni texte additionnel) :
+{
+  "best_concept_index": 0, // Index (0 à 4) du meilleur concept
+  "justification": "Explication basée sur les parties du template et les règles d'anti-vente.",
+  "improvement_suggestion": "Suggestion pour rendre l'email plus efficace (ex: rendre la projection plus émotionnelle).",
+  "rewritten_email_final": "Corps de l'email FINAL, réécrit en texte brut, suivant toutes les règles.",
+  "self_reply_test": "OUI/NON/PEUT-ÊTRE",
+  "self_reply_justification": "Pourquoi je répondrais ou non.",
+  "rewritten_email_for_reply": "Corps de l'email PARFAIT (si nécessaire, sinon même que 'rewritten_email_final').",
+  "final_hooks": ["Objet final 1", "Objet final 2", "Objet final 3"]
+}
+`;
+
+  const analysisResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${apiKey}`,
+    },
+    body: JSON.stringify({
+      model: 'gpt-4o', // Utilisation de GPT-4o pour l'analyse complexe
+      messages: [
+        {
+          role: 'system',
+          content: 'Tu es un Copywriter Senior et un analyste. Réponds toujours avec un JSON valide, sans markdown ni texte additionnel.'
+        },
+        {
+          role: 'user',
+          content: analysisPrompt
+        }
+      ],
+      temperature: 0.5, // Température plus basse pour l'analyse
+      max_tokens: 3000,
+    }),
+  });
+
+  if (!analysisResponse.ok) {
+    const error = await analysisResponse.json();
+    throw new Error(error.error?.message || 'Failed to generate cold emails (Phase 2 - Analysis)');
+  }
+
+  const analysisData = await analysisResponse.json();
+  const analysisContent = analysisData.choices[0].message.content;
+  
+  let analysisResult: any;
+  try {
+    const jsonMatch = analysisContent.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) throw new Error('No analysis JSON found');
+    analysisResult = JSON.parse(jsonMatch[0]);
+  } catch (e) {
+    console.error("Failed to parse AI Analysis JSON:", analysisContent);
+    throw new Error("AI analysis response format error");
+  }
+
+  // --- INTÉGRATION DES RÉSULTATS DANS LA RÉPONSE FINALE ---
+
+  // 1. Mise à jour du meilleur concept avec la version réécrite
+  const bestConceptIndex = analysisResult.best_concept_index || 0;
+  let finalConcepts = generatedConcepts.map((c, i) => {
+    if (i === bestConceptIndex) {
+      // Remplace le corps de l'email et les hooks par la version finale améliorée
+      return {
+        ...c,
+        suggested_visual: analysisResult.rewritten_email_for_reply || analysisResult.rewritten_email_final,
+        hooks: analysisResult.final_hooks || c.hooks,
+        concept: c.concept + " (Version Améliorée Finale)",
+        // Ajout de l'analyse complète dans script_outline pour consultation
+        script_outline: `--- ANALYSE DÉTAILLÉE ---\nChoix: ${analysisResult.justification}\nAmélioration suggérée: ${analysisResult.improvement_suggestion}\nTest personnel: ${analysisResult.self_reply_test} - ${analysisResult.self_reply_justification}\n--- CORPS FINAL AMÉLIORÉ ---\n${analysisResult.rewritten_email_for_reply || analysisResult.rewritten_email_final}`
+      };
+    }
+    return c;
+  });
+
+  // 2. Ajout de l'analyse complète comme dernier élément de la liste
+  // Ceci permet au développeur d'afficher l'analyse critique dans l'interface si nécessaire.
+  const analysisConcept: ConceptData = {
+    funnel_stage: "ANALYSIS",
+    concept: "Analyse Critique et Meilleur Email",
+    format: "Rapport",
+    hooks: analysisResult.final_hooks || generatedConcepts[bestConceptIndex].hooks,
+    marketing_objective: "Optimisation de la performance",
+    scroll_stopper: analysisResult.rewritten_email_for_reply?.split('\n')[1] || analysisResult.rewritten_email_final?.split('\n')[1] || '',
+    problem: "Optimisation du taux de réponse",
+    solution: "Application du framework de copywriting",
+    benefits: "Taux de réponse > 40%",
+    proof: `Index choisi: ${bestConceptIndex}, Répondrais-je: ${analysisResult.self_reply_test}`,
+    cta: "Voir le Corps de l'Email Final",
+    suggested_visual: analysisResult.rewritten_email_for_reply || analysisResult.rewritten_email_final,
+    script_outline: `JUSTIFICATION:\n${analysisResult.justification}\n\nAMÉLIORATION SUGGÉRÉE:\n${analysisResult.improvement_suggestion}\n\nTEST PERSONNEL:\n${analysisResult.self_reply_test} - ${analysisResult.self_reply_justification}\n\nCORPS FINAL AMÉLIORÉ (copiable ci-dessous):\n${analysisResult.rewritten_email_for_reply || analysisResult.rewritten_email_final}`,
+    media_type: 'email'
+  };
+  finalConcepts.push(analysisConcept);
+  
+  return finalConcepts.map((c: ConceptData) => ({ 
     ...c, 
     media_type: 'email' as const, 
     scroll_stopper: c.hooks[0] || c.scroll_stopper, 
@@ -319,152 +255,4 @@ Réponds UNIQUEMENT avec un JSON valide au format suivant (array de 15 objets mi
     script_outline: c.script_outline || '' 
   }));
 }
-
-// --- GENERATION IMAGES (OPENAI) (INCHANGÉE) ---
-export async function generateImage(
-  prompt: string,
-  apiKey: string
-): Promise<string> {
-  const response = await fetch('https://api.openai.com/v1/images/generations', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${apiKey}`,
-    },
-    body: JSON.stringify({
-      model: 'dall-e-3',
-      prompt: prompt,
-      n: 1,
-      size: '1024x1024',
-      quality: 'standard',
-    }),
-  });
-
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.error?.message || 'Failed to generate image');
-  }
-
-  const data = await response.json();
-  return data.data[0].url;
-}
-
-// --- GENERATION IMAGES (IDEOGRAM) (INCHANGÉE) ---
-export async function generateImageIdeogram(
-  prompt: string,
-  apiKey: string
-): Promise<string> {
-  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-  const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-  const edgeFunctionUrl = `${supabaseUrl}/functions/v1/generate-image-ideogram`;
-
-  try {
-    const response = await fetch(edgeFunctionUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${supabaseAnonKey}`,
-      },
-      body: JSON.stringify({
-        prompt,
-        apiKey,
-      }),
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      console.error('Ideogram Edge Function error:', errorData);
-      throw new Error(errorData.error || 'Failed to generate image with Ideogram');
-    }
-
-    const data = await response.json();
-    return data.data[0].url;
-  } catch (error) {
-    console.error('Ideogram generation error:', error);
-    if (error instanceof Error) {
-      throw error;
-    }
-    throw new Error('Failed to connect to Ideogram API');
-  }
-}
-
-// --- GENERATION IMAGES (GOOGLE) (INCHANGÉE) ---
-export async function generateImageGoogle(
-  prompt: string,
-  apiKey: string
-): Promise<string> {
-  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-  const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-  const edgeFunctionUrl = `${supabaseUrl}/functions/v1/generate-image-google`;
-
-  try {
-    const response = await fetch(edgeFunctionUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${supabaseAnonKey}`,
-      },
-      body: JSON.stringify({
-        prompt,
-        apiKey,
-      }),
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      console.error('Google Edge Function error:', errorData);
-      throw new Error(errorData.error || 'Failed to generate image with Google');
-    }
-
-    const data = await response.json();
-    return data.url;
-  } catch (error) {
-    console.error('Google generation error:', error);
-    if (error instanceof Error) {
-      throw error;
-    }
-    throw new Error('Failed to connect to Google API');
-  }
-}
-
-// --- GENERATION IMAGES (NANO BANANA / HIGGSFIELD) (INCHANGÉE) ---
-export async function generateImageNanoBanana(
-  prompt: string,
-  apiKey: string,
-  apiSecret: string
-): Promise<string> {
-  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-  const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-  const edgeFunctionUrl = `${supabaseUrl}/functions/v1/generate-image-nanobanana`;
-
-  try {
-    const response = await fetch(edgeFunctionUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${supabaseAnonKey}`,
-      },
-      body: JSON.stringify({
-        prompt,
-        apiKey,
-        apiSecret,
-        aspect_ratio: "1:1" // Carré par défaut
-      }),
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      console.error('Nano Banana Edge Function error:', errorData);
-      throw new Error(errorData.error || 'Failed to generate image with Nano Banana');
-    }
-
-    const data = await response.json();
-    return data.url;
-  } catch (error) {
-    console.error('Nano Banana generation error:', error);
-    if (error instanceof Error) {
-      throw error;
-    }
-    throw new Error('Failed to connect to Nano Banana API');
-  }
-}
+// Suppression des fonctions images/vidéos... (déjà fait)

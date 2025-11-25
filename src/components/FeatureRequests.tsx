@@ -201,7 +201,7 @@ export default function FeatureRequests({ onBack, isAdmin }: FeatureRequestsProp
     return (
       <div className="max-w-4xl mx-auto p-8 bg-[#232323] text-[#FAF5ED]">
         <div className="flex items-center justify-center py-20">
-          <Loader className="w-8 h-8 animate-spin text-[#24B745]" />
+          <Loader className="w-8 h-8 animate-spin text-studio-accent" />
         </div>
       </div>
     );
@@ -211,17 +211,17 @@ export default function FeatureRequests({ onBack, isAdmin }: FeatureRequestsProp
     <div className="max-w-4xl mx-auto p-8">
       <button
         onClick={onBack}
-        className="flex items-center gap-2 text-[#24B745] mb-6 font-bold uppercase text-xs hover:text-[#1f9e3b] transition-colors"
+        className="flex items-center gap-2 text-studio-accent mb-6 font-bold uppercase text-xs hover:text-studio-accentHover transition-colors"
       >
         <ArrowLeft className="w-4 h-4" /> Retour
       </button>
 
-      <div className="bg-[#232323] text-[#FAF5ED] border-l-4 border-[#24B745] p-8 mb-6">
+      <div className="bg-[#232323] text-[#FAF5ED] border-l-4 border-studio-accent p-8 mb-6">
         <div className="flex items-center justify-between mb-4">
           <h1 className="text-3xl font-black uppercase">Suggestions</h1>
           <button
             onClick={() => setShowNewModal(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-[#24B745] hover:bg-[#1f9e3b] text-[#FAF5ED] font-bold uppercase text-xs tracking-widest transition-colors"
+            className="flex items-center gap-2 px-4 py-2 bg-studio-accent hover:bg-studio-accentHover text-[#232323] font-bold uppercase text-xs tracking-widest transition-colors"
           >
             <Plus className="w-4 h-4" /> Nouvelle suggestion
           </button>
@@ -256,7 +256,7 @@ export default function FeatureRequests({ onBack, isAdmin }: FeatureRequestsProp
           featureRequests.map((request) => (
             <div
               key={request.id}
-              className="bg-[#232323] text-[#FAF5ED] border border-[#3A3A3A] p-6 hover:border-[#24B745]/50 transition-colors"
+              className="bg-[#232323] text-[#FAF5ED] border border-[#3A3A3A] p-6 hover:border-studio-accent/50 transition-colors"
             >
               <div className="flex items-start justify-between gap-4 mb-4">
                 <div className="flex-1">
@@ -274,8 +274,8 @@ export default function FeatureRequests({ onBack, isAdmin }: FeatureRequestsProp
                   disabled={!user}
                   className={`flex flex-col items-center gap-1 px-4 py-2 border-2 transition-all ${
                     userVotes.has(request.id)
-                      ? 'bg-[#24B745]/20 border-[#24B745] text-[#24B745]'
-                      : 'border-[#3A3A3A] text-[#FAF5ED]/50 hover:border-[#24B745]/50 hover:text-[#24B745]'
+                      ? 'bg-studio-accent/20 border-studio-accent text-studio-accent'
+                      : 'border-[#3A3A3A] text-[#FAF5ED]/50 hover:border-studio-accent/50 hover:text-studio-accent'
                   } ${!user ? 'opacity-50 cursor-not-allowed' : ''}`}
                 >
                   <ThumbsUp className="w-5 h-5" />
@@ -335,10 +335,10 @@ export default function FeatureRequests({ onBack, isAdmin }: FeatureRequestsProp
 
       {showNewModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
-          <div className="w-full max-w-md bg-[#232323] border-2 border-[#24B745] shadow-[8px_8px_0px_0px_#24B745] p-8 relative">
+          <div className="w-full max-w-md bg-[#232323] border-2 border-studio-accent shadow-[8px_8px_0px_0px_#FFBEFA] p-8 relative">
             <button
               onClick={() => setShowNewModal(false)}
-              className="absolute top-4 right-4 text-[#FAF5ED]/50 hover:text-[#24B745] transition-colors"
+              className="absolute top-4 right-4 text-[#FAF5ED]/50 hover:text-studio-accent transition-colors"
             >
               <X className="w-6 h-6" />
             </button>
@@ -355,7 +355,7 @@ export default function FeatureRequests({ onBack, isAdmin }: FeatureRequestsProp
               className="space-y-6"
             >
               <div>
-                <label className="block text-xs font-bold text-[#24B745] uppercase tracking-wider mb-2">
+                <label className="block text-xs font-bold text-studio-accent uppercase tracking-wider mb-2">
                   Titre
                 </label>
                 <input
@@ -364,13 +364,13 @@ export default function FeatureRequests({ onBack, isAdmin }: FeatureRequestsProp
                   onChange={(e) => setNewTitle(e.target.value)}
                   required
                   autoFocus
-                  className="w-full px-4 py-3 bg-[#2A2A2A] border-2 border-[#3A3A3A] text-[#FAF5ED] focus:border-[#24B745] focus:bg-[#232323] font-bold outline-none rounded-none"
+                  className="w-full px-4 py-3 bg-[#2A2A2A] border-2 border-[#3A3A3A] text-[#FAF5ED] focus:border-studio-accent focus:bg-[#232323] font-bold outline-none rounded-none"
                   placeholder="Ex: Ajouter un export PDF"
                 />
               </div>
               
               <div>
-                <label className="block text-xs font-bold text-[#24B745] uppercase tracking-wider mb-2">
+                <label className="block text-xs font-bold text-studio-accent uppercase tracking-wider mb-2">
                   Description
                 </label>
                 <textarea
@@ -378,7 +378,7 @@ export default function FeatureRequests({ onBack, isAdmin }: FeatureRequestsProp
                   onChange={(e) => setNewDescription(e.target.value)}
                   required
                   rows={5}
-                  className="w-full px-4 py-3 bg-[#2A2A2A] border-2 border-[#3A3A3A] text-[#FAF5ED] focus:border-[#24B745] focus:bg-[#232323] outline-none rounded-none resize-none"
+                  className="w-full px-4 py-3 bg-[#2A2A2A] border-2 border-[#3A3A3A] text-[#FAF5ED] focus:border-studio-accent focus:bg-[#232323] outline-none rounded-none resize-none"
                   placeholder="Décrivez votre suggestion en détail..."
                 />
               </div>
@@ -394,7 +394,7 @@ export default function FeatureRequests({ onBack, isAdmin }: FeatureRequestsProp
                 <button
                   type="submit"
                   disabled={submitting || !newTitle.trim() || !newDescription.trim()}
-                  className="flex-1 px-4 py-4 bg-[#24B745] text-[#FAF5ED] hover:bg-[#1f9e3b] font-bold uppercase tracking-widest text-xs shadow-lg rounded-none flex justify-center items-center gap-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 px-4 py-4 bg-studio-accent text-[#232323] hover:bg-studio-accentHover font-bold uppercase tracking-widest text-xs shadow-lg rounded-none flex justify-center items-center gap-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {submitting ? <Loader className="w-4 h-4 animate-spin" /> : 'Créer'}
                 </button>

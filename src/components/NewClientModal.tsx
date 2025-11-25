@@ -21,12 +21,12 @@ export default function NewClientModal({ onClose, onClientCreated }: any) {
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
-      <div className="w-full max-w-md bg-[#232323] border-2 border-[#24B745] shadow-[8px_8px_0px_0px_#24B745] p-8 relative">
-        <button onClick={onClose} className="absolute top-4 right-4 text-[#FAF5ED]/50 hover:text-[#24B745]"><X className="w-6 h-6" /></button>
+      <div className="w-full max-w-md bg-[#232323] border-2 border-studio-accent shadow-[8px_8px_0px_0px_#FFBEFA] p-8 relative">
+        <button onClick={onClose} className="absolute top-4 right-4 text-[#FAF5ED]/50 hover:text-studio-accent"><X className="w-6 h-6" /></button>
         <h2 className="text-2xl font-black text-[#FAF5ED] uppercase tracking-tight mb-8">Nouveau Client</h2>
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label className="block text-xs font-bold text-[#24B745] uppercase tracking-wider mb-2">Nom</label>
+            <label className="block text-xs font-bold text-studio-accent uppercase tracking-wider mb-2">Nom</label>
             <div className="relative">
               <Building2 className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#FAF5ED]/30" />
               <input 
@@ -36,7 +36,7 @@ export default function NewClientModal({ onClose, onClientCreated }: any) {
                 autoFocus 
                 required 
                 placeholder="Nom du client"
-                className="w-full pl-12 pr-4 py-4 bg-[#2A2A2A] border-2 border-[#3A3A3A] text-[#FAF5ED] focus:border-[#24B745] focus:bg-[#232323] font-bold outline-none rounded-none" 
+                className="w-full pl-12 pr-4 py-4 bg-[#2A2A2A] border-2 border-[#3A3A3A] text-[#FAF5ED] focus:border-studio-accent focus:bg-[#232323] font-bold outline-none rounded-none" 
               />
             </div>
           </div>
@@ -51,7 +51,7 @@ export default function NewClientModal({ onClose, onClientCreated }: any) {
             <button 
               type="submit" 
               disabled={loading} 
-              className="flex-1 px-4 py-4 bg-[#24B745] text-[#FAF5ED] hover:bg-[#1f9e3b] font-bold uppercase tracking-widest text-xs shadow-lg rounded-none flex justify-center items-center gap-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 px-4 py-4 bg-studio-accent text-[#232323] hover:bg-studio-accentHover font-bold uppercase tracking-widest text-xs shadow-lg rounded-none flex justify-center items-center gap-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? <Loader className="w-4 h-4 animate-spin" /> : 'Créer'}
             </button>

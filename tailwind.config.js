@@ -18,8 +18,8 @@ export default {
           card: '#232323',    // FOND CARTES
           cardText: '#FAF5ED',// TEXTE CARTES
           
-          accent: '#24B745',  // VERT
-          accentHover: '#1f9e3b',
+          accent: '#FFBEFA',  // ROSE (remplace le VERT #24B745)
+          accentHover: '#e0a6dc', // ROSE FONCÉ (remplace le VERT FONCÉ #1f9e3b)
         }
       }
     },

@@ -77,8 +77,8 @@ function App() {
               <Sparkles className="w-5 h-5 text-[#FAF5ED]" />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-[#FAF5ED] tracking-tight uppercase">Freyja Studio</h1>
-              <p className="text-xs text-[#FAF5ED]/60 font-medium tracking-widest">Creative Intelligence</p>
+              <h1 className="text-xl font-bold text-[#FAF5ED] tracking-tight uppercase">ProspectLab</h1>
+              <p className="text-xs text-[#FAF5ED]/60 font-medium tracking-widest">Cold Email Intelligence</p>
             </div>
           </div>
           
@@ -116,7 +116,7 @@ function App() {
               <p className="opacity-60">Vous n'avez pas les permissions nécessaires pour accéder à cette page.</p>
               <button
                 onClick={handleBackToClients}
-                className="mt-6 px-4 py-2 bg-[#24B745] hover:bg-[#1f9e3b] text-[#FAF5ED] font-bold uppercase text-xs tracking-widest transition-colors"
+                className="mt-6 px-4 py-2 bg-studio-accent hover:bg-studio-accentHover text-[#FAF5ED] font-bold uppercase text-xs tracking-widest transition-colors"
               >
                 Retour à l'accueil
               </button>

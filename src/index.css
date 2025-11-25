@@ -26,7 +26,7 @@
     @apply bg-[#232323] border-2 border-[#FAF5ED];
   }
   ::-webkit-scrollbar-thumb:hover {
-    @apply bg-[#24B745];
+    @apply bg-[#FFBEFA]; /* CHANGÉ: Vert -> Rose */
   }
 }
 
@@ -40,8 +40,8 @@ input, textarea, select {
 
 /* Focus states pour les inputs */
 input:focus, textarea:focus, select:focus {
-  @apply border-[#24B745] !important;
-  @apply ring-1 ring-[#24B745] !important;
+  @apply border-[#FFBEFA] !important; /* CHANGÉ: Vert -> Rose */
+  @apply ring-1 ring-[#FFBEFA] !important; /* CHANGÉ: Vert -> Rose */
   outline: none !important;
 }
 
