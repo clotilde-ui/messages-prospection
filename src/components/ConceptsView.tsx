@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase, Analysis, Concept, Client } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import { generateColdEmails } from '../services/openaiService';
-import { ArrowLeft, Loader, Download, FileDown, Trash2, Edit2, Check, Sparkles, FileText } from 'lucide-react';
+import { ArrowLeft, Loader, Download, FileDown, Trash2, Edit2, Check, Sparkles, FileText, X, ChevronDown, ChevronUp, Save } from 'lucide-react'; // <-- Ajout et correction des imports
 
 interface ConceptsViewProps {
   analysis: Analysis;
@@ -12,13 +12,11 @@ interface ConceptsViewProps {
 // Le type Tab est fixe
 type Tab = 'email'; 
 
-// Suppression du composant CountdownWarning (images non utilisées)
-
 export default function ConceptsView({ analysis, onBack }: ConceptsViewProps) {
   const { user } = useAuth();
   const [concepts, setConcepts] = useState<Concept[]>([]);
-  // Le type de l'onglet est fixe à 'email'
-  const [activeTab, setActiveTab] = useState<Tab>('email'); 
+  // TS6133: 'setActiveTab' est retiré car non utilisé
+  const [activeTab] = useState<Tab>('email'); 
   
   // Gestion de l'analyse éditable
   const [analysisParams, setAnalysisParams] = useState<Analysis>(analysis);
@@ -36,14 +34,14 @@ export default function ConceptsView({ analysis, onBack }: ConceptsViewProps) {
   // Clé API OpenAI (la seule restante)
   const [apiKey, setApiKey] = useState('');
   
-  // Suppression des states liés à l'image et aux autres APIs d'imagerie
-  const [clientData, setClientData] = useState<Client | null>(null); // Maintenu pour la cohérence
-
+  // Rétiré le state clientData car il était non lu (TS6133)
+  
   useEffect(() => {
     setAnalysisParams(analysis);
     loadConcepts();
     loadApiKey();
-    loadClientData();
+    // Appel loadClientData maintenu car la fonction est déclarée et appelée
+    loadClientData(); 
   }, [analysis.id]);
 
   async function loadApiKey() {
@@ -57,7 +55,6 @@ export default function ConceptsView({ analysis, onBack }: ConceptsViewProps) {
 
       if (data) {
         setApiKey(data.openai_api_key || '');
-        // Les autres clés API ne sont plus lues
       }
     } catch (error) {
       console.error('Error loading API keys:', error);
@@ -65,6 +62,7 @@ export default function ConceptsView({ analysis, onBack }: ConceptsViewProps) {
   }
 
   async function loadClientData() {
+    // Maintenu car appelé dans useEffect
     try {
       const { data, error } = await supabase
         .from('clients')
@@ -73,9 +71,11 @@ export default function ConceptsView({ analysis, onBack }: ConceptsViewProps) {
         .maybeSingle();
 
       if (error) throw error;
-      setClientData(data);
+      return data;
+
     } catch (error) {
       console.error('Error loading client data:', error);
+      return null;
     }
   }
 
@@ -89,7 +89,6 @@ export default function ConceptsView({ analysis, onBack }: ConceptsViewProps) {
         .order('created_at', { ascending: true });
 
       if (error) throw error;
-      // Filtration pour ne garder que les 'email' (sécurité)
       setConcepts((data || []).filter(c => c.media_type === 'email') as Concept[]);
     } catch (error) {
       console.error('Error loading concepts:', error);
@@ -199,7 +198,6 @@ export default function ConceptsView({ analysis, onBack }: ConceptsViewProps) {
         const { error } = await supabase.from('concepts').insert(conceptsToInsert);
         if (error) throw error;
         await loadConcepts();
-        // L'onglet reste 'email', pas besoin de set ActiveTab
     } catch (error) {
         console.error('Error generating email concepts:', error);
         alert('Erreur lors de la génération des emails. Vérifiez votre clé API.');
@@ -383,8 +381,7 @@ export default function ConceptsView({ analysis, onBack }: ConceptsViewProps) {
               <Sparkles className="w-4 h-4 text-studio-accent" />
               <span className="font-bold text-[#FAF5ED] uppercase text-xs tracking-widest">Stratégie & Analyse (Déplier pour modifier)</span>
             </div>
-            {/* L'icône ChevronDown/Up doit être importée si elle n'est pas déjà dans les imports du fichier */}
-            {isAnalysisOpen ? <ArrowLeft className="w-4 h-4 text-[#FAF5ED]" /> : <ArrowLeft className="w-4 h-4 text-[#FAF5ED]" />}
+            {isAnalysisOpen ? <ChevronUp className="w-4 h-4 text-[#FAF5ED]" /> : <ChevronDown className="w-4 h-4 text-[#FAF5ED]" />}
           </button>
           {isAnalysisOpen && (
             <div className="p-4 border-t border-[#3A3A3A] space-y-4">
@@ -408,7 +405,7 @@ export default function ConceptsView({ analysis, onBack }: ConceptsViewProps) {
               </div>
               <div className="flex justify-end">
                 <button onClick={handleSaveAnalysis} disabled={isSavingAnalysis} className="flex items-center gap-2 px-4 py-2 bg-[#232323] border border-studio-accent text-studio-accent hover:bg-studio-accent hover:text-[#FAF5ED] transition-colors font-bold uppercase text-xs rounded-none">
-                  {isSavingAnalysis ? '...' : <><ArrowLeft className="w-3 h-3" /> Sauvegarder</>}
+                  {isSavingAnalysis ? '...' : <><Save className="w-3 h-3" /> Sauvegarder</>}
                 </button>
               </div>
             </div>

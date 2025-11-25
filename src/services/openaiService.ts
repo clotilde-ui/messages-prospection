@@ -1,4 +1,4 @@
-import OpenAI from "openai";
+// Suppression de l'import OpenAI car il n'est pas utilisé (corrige TS6133)
 
 export interface ConceptData {
   funnel_stage: string;
