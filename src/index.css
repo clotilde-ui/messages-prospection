@@ -1,0 +1,56 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  /* RÈGLE BRUTALISTE : Angles droits partout ! */
+  * {
+    border-radius: 0 !important;
+  }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    /* Fond Beige et Texte Anthracite par défaut */
+    @apply bg-[#FAF5ED] text-[#232323];
+  }
+  
+  /* Scrollbar personnalisée aux couleurs de l'app */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    @apply bg-[#FAF5ED];
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-[#232323] border-2 border-[#FAF5ED];
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-[#24B745];
+  }
+}
+
+/* Inputs : Fond Anthracite, Texte Beige */
+input, textarea, select {
+  @apply bg-[#232323] !important;
+  @apply border border-[#232323]/20 !important;
+  @apply text-[#FAF5ED] !important;
+  @apply placeholder-[#FAF5ED]/50 !important;
+}
+
+/* Focus states pour les inputs */
+input:focus, textarea:focus, select:focus {
+  @apply border-[#24B745] !important;
+  @apply ring-1 ring-[#24B745] !important;
+  outline: none !important;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  @apply bg-[#232323];
+}
