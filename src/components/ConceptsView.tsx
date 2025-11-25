@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
-import { supabase, Analysis, Concept, Client } from '../lib/supabase';
+import { supabase, Analysis, Concept } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import { generateColdEmails } from '../services/openaiService';
-import { ArrowLeft, Loader, Download, FileDown, Trash2, Edit2, Check, Sparkles, FileText, X, ChevronDown, ChevronUp, Save } from 'lucide-react'; // <-- Ajout et correction des imports
+import { ArrowLeft, Loader, Download, FileDown, Trash2, Edit2, Check, Sparkles, FileText, X, ChevronDown, ChevronUp, Save } from 'lucide-react';
 
 interface ConceptsViewProps {
   analysis: Analysis;
